@@ -78,6 +78,8 @@ type ClusterStateRegistryConfig struct {
 	OkTotalUnreadyCount int
 	//  Maximum time CA waits for node to be provisioned
 	MaxNodeProvisionTime time.Duration
+	// NodeGroupKeepBackoffOutOfResources is whether a backoff can be removed before expiration when a scale-up fails due to the cloud provider being out of resources.
+	NodeGroupKeepBackoffOutOfResources bool
 }
 
 // IncorrectNodeGroupSize contains information about how much the current size of the node group
@@ -238,7 +240,11 @@ func (csr *ClusterStateRegistry) updateScaleRequests(currentTime time.Time) {
 			// scale-out finished successfully
 			// remove it and reset node group backoff
 			delete(csr.scaleUpRequests, nodeGroupName)
-			csr.backoff.RemoveBackoff(scaleUpRequest.NodeGroup, csr.nodeInfosForGroups[scaleUpRequest.NodeGroup.Id()])
+			shouldKeepBackoff := csr.config.NodeGroupKeepBackoffOutOfResources && csr.backoff.IsNodeGroupOutOfResources(scaleUpRequest.NodeGroup)
+			if !shouldKeepBackoff {
+				klog.V(4).Infof("Removing backoff for node group %v", scaleUpRequest.NodeGroup.Id())
+				csr.backoff.RemoveBackoff(scaleUpRequest.NodeGroup, csr.nodeInfosForGroups[scaleUpRequest.NodeGroup.Id()])
+			}
 			klog.V(4).Infof("Scale up in group %v finished successfully in %v",
 				nodeGroupName, currentTime.Sub(scaleUpRequest.Time))
 			continue

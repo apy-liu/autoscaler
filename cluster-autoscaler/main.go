@@ -323,6 +323,7 @@ func createAutoscalingOptions() config.AutoscalingOptions {
 		InitialNodeGroupBackoffDuration:    *initialNodeGroupBackoffDuration,
 		MaxNodeGroupBackoffDuration:        *maxNodeGroupBackoffDuration,
 		NodeGroupBackoffResetTimeout:       *nodeGroupBackoffResetTimeout,
+		NodeGroupKeepBackoffOutOfResources: *nodeGroupKeepBackoffOutOfResources,
 		MaxScaleDownParallelism:            *maxScaleDownParallelismFlag,
 		MaxDrainParallelism:                *maxDrainParallelismFlag,
 		GceExpanderEphemeralStorageSupport: *gceExpanderEphemeralStorageSupport,
