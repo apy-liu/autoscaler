@@ -301,7 +301,7 @@ func (csr *ClusterStateRegistry) RegisterFailedScaleUp(nodeGroup cloudprovider.N
 
 func (csr *ClusterStateRegistry) registerFailedScaleUpNoLock(nodeGroup cloudprovider.NodeGroup, reason metrics.FailedScaleUpReason, errorClass cloudprovider.InstanceErrorClass, errorCode string, currentTime time.Time) {
 	csr.scaleUpFailures[nodeGroup.Id()] = append(csr.scaleUpFailures[nodeGroup.Id()], ScaleUpFailure{NodeGroup: nodeGroup, Reason: reason, Time: currentTime})
-	metrics.RegisterFailedScaleUp(reason, gpuResourceName, gpuType)
+	metrics.RegisterFailedScaleUp(reason)
 	// attach the error class to the scale-up request if it exists
 	// it will be used to determine whether to remove the backoff early when updating scale-up requests
 	scaleUpRequest, found := csr.scaleUpRequests[nodeGroup.Id()]

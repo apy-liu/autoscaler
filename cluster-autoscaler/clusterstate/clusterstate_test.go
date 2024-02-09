@@ -479,7 +479,7 @@ func TestRemovePersistentErrorBackoffEarlyEnabled(t *testing.T) {
 		MaxTotalUnreadyPercentage:                  10,
 		OkTotalUnreadyCount:                        1,
 		NodeGroupRemovePersistentErrorBackoffEarly: true,
-	}, fakeLogRecorder, newBackoff(), nodegroupconfig.NewDefaultNodeGroupConfigProcessor(config.NodeGroupAutoscalingOptions{MaxNodeProvisionTime: 15 * time.Minute}))
+	}, fakeLogRecorder, newBackoff())
 
 	now := time.Now()
 
@@ -489,8 +489,8 @@ func TestRemovePersistentErrorBackoffEarlyEnabled(t *testing.T) {
 	assert.True(t, clusterstate.IsNodeGroupScalingUp("ng1"))
 
 	// Fail two nodes with a persistent and a non-persistent error
-	clusterstate.registerFailedScaleUpNoLock(provider.GetNodeGroup("ng1"), metrics.CloudProviderError, cloudprovider.OutOfResourcesErrorClass, string(metrics.CloudProviderError), "", "", now)
-	clusterstate.registerFailedScaleUpNoLock(provider.GetNodeGroup("ng1"), metrics.CloudProviderError, cloudprovider.OtherErrorClass, string(metrics.CloudProviderError), "", "", now)
+	clusterstate.registerFailedScaleUpNoLock(provider.GetNodeGroup("ng1"), metrics.CloudProviderError, cloudprovider.OutOfResourcesErrorClass, string(metrics.CloudProviderError), now)
+	clusterstate.registerFailedScaleUpNoLock(provider.GetNodeGroup("ng1"), metrics.CloudProviderError, cloudprovider.OtherErrorClass, string(metrics.CloudProviderError), now)
 	clusterstate.RegisterOrUpdateScaleUp(provider.GetNodeGroup("ng1"), -2, now)
 	assert.Equal(t, 2, len(clusterstate.scaleUpRequests["ng1"].ErrorClasses))
 	assert.True(t, clusterstate.backoff.IsBackedOff(provider.GetNodeGroup("ng1"), nil, now))
@@ -515,7 +515,7 @@ func TestRemovePersistentErrorBackoffEarlyDisabled(t *testing.T) {
 		MaxTotalUnreadyPercentage:                  10,
 		OkTotalUnreadyCount:                        1,
 		NodeGroupRemovePersistentErrorBackoffEarly: false,
-	}, fakeLogRecorder, newBackoff(), nodegroupconfig.NewDefaultNodeGroupConfigProcessor(config.NodeGroupAutoscalingOptions{MaxNodeProvisionTime: 15 * time.Minute}))
+	}, fakeLogRecorder, newBackoff())
 
 	now := time.Now()
 
@@ -525,7 +525,7 @@ func TestRemovePersistentErrorBackoffEarlyDisabled(t *testing.T) {
 	assert.True(t, clusterstate.IsNodeGroupScalingUp("ng1"))
 
 	// Fail one node with a persistent error
-	clusterstate.registerFailedScaleUpNoLock(provider.GetNodeGroup("ng1"), metrics.CloudProviderError, cloudprovider.OutOfResourcesErrorClass, string(metrics.CloudProviderError), "", "", now)
+	clusterstate.registerFailedScaleUpNoLock(provider.GetNodeGroup("ng1"), metrics.CloudProviderError, cloudprovider.OutOfResourcesErrorClass, string(metrics.CloudProviderError), now)
 	clusterstate.RegisterOrUpdateScaleUp(provider.GetNodeGroup("ng1"), -1, now)
 	assert.True(t, clusterstate.backoff.IsBackedOff(provider.GetNodeGroup("ng1"), nil, now))
 
@@ -544,7 +544,7 @@ func TestRemovePersistentErrorBackoffEarlyDisabled(t *testing.T) {
 	assert.True(t, clusterstate.IsNodeGroupScalingUp("ng1"))
 
 	// Fail one node with a non-persistent error
-	clusterstate.registerFailedScaleUpNoLock(provider.GetNodeGroup("ng1"), metrics.CloudProviderError, cloudprovider.OtherErrorClass, string(metrics.CloudProviderError), "", "", now)
+	clusterstate.registerFailedScaleUpNoLock(provider.GetNodeGroup("ng1"), metrics.CloudProviderError, cloudprovider.OtherErrorClass, string(metrics.CloudProviderError), now)
 	clusterstate.RegisterOrUpdateScaleUp(provider.GetNodeGroup("ng1"), -1, now)
 	assert.True(t, clusterstate.backoff.IsBackedOff(provider.GetNodeGroup("ng1"), nil, now))
 

@@ -138,12 +138,6 @@ func NewStaticAutoscaler(
 	backoff backoff.Backoff,
 	debuggingSnapshotter debuggingsnapshot.DebuggingSnapshotter) *StaticAutoscaler {
 
-	clusterStateConfig := clusterstate.ClusterStateRegistryConfig{
-		MaxTotalUnreadyPercentage:                  opts.MaxTotalUnreadyPercentage,
-		OkTotalUnreadyCount:                        opts.OkTotalUnreadyCount,
-		NodeGroupRemovePersistentErrorBackoffEarly: opts.NodeGroupRemovePersistentErrorBackoffEarly,
-	}
-	clusterStateRegistry := clusterstate.NewClusterStateRegistry(cloudProvider, clusterStateConfig, autoscalingKubeClients.LogRecorder, backoff, processors.NodeGroupConfigProcessor)
 	processorCallbacks := newStaticAutoscalerProcessorCallbacks()
 	autoscalingContext := context.NewAutoscalingContext(
 		opts,
@@ -160,6 +154,7 @@ func NewStaticAutoscaler(
 		MaxTotalUnreadyPercentage: opts.MaxTotalUnreadyPercentage,
 		OkTotalUnreadyCount:       opts.OkTotalUnreadyCount,
 		MaxNodeProvisionTime:      opts.MaxNodeProvisionTime,
+		NodeGroupRemovePersistentErrorBackoffEarly: opts.NodeGroupRemovePersistentErrorBackoffEarly,
 	}
 
 	ignoredTaints := make(taints.TaintKeySet)
